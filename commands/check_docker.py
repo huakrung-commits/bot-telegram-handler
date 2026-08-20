@@ -1,60 +1,68 @@
 import os
-import docker
+import httpx
 from telegram import Update
 from telegram.ext import CommandHandler, ContextTypes
 
-async def check_docker_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    msg = await update.message.reply_text("🔍 **Analyse des conteneurs Docker...**", parse_mode="Markdown")
+# Récupération de l'URL et de la clé API depuis le .env du bot
+API_URL = os.getenv("PI_API_URL", "http://172.17.0.1:8000")
+API_KEY = os.getenv("PI_API_KEY", "")
+
+async def containers_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    msg = await update.message.reply_text("🔍 **Analyse des conteneurs via l'API...**", parse_mode="Markdown")
+
+    headers = {"X-API-Key": API_KEY}
 
     try:
-        docker_socket = os.getenv("DOCKER_HOST", "unix://var/run/docker.sock")
-        client = docker.DockerClient(base_url=docker_socket)
-        containers = client.containers.list(all=True)
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f"{API_URL}/containers", headers=headers, timeout=5.0)
 
-        if not containers:
-            await msg.edit_text("ℹ️ Aucun conteneur Docker trouvé sur la machine.")
-            return
+            if response.status_code != 200:
+                await msg.edit_text(f"❌ **Erreur API ({response.status_code}) :**\n`{response.text}`", parse_mode="Markdown")
+                return
 
-        # Tri des conteneurs par nom
-        containers.sort(key=lambda c: c.name)
+            data = response.json()
+            containers = data.get("containers", [])
+            total_count = data.get("total", 0)
+            running_count = data.get("running", 0)
 
-        running_count = 0
-        total_count = len(containers)
-        lines = []
+            if not containers:
+                await msg.edit_text("ℹ️ Aucun conteneur Docker trouvé.")
+                return
 
-        for c in containers:
-            status = c.status.lower()
-            name = c.name
+            lines = []
+            for c in containers:
+                name = c.get("name")
+                status = c.get("status", "").lower()
+                health = c.get("health", "N/A")
 
-            # Détection de l'état avec émojis
-            if status == "running":
-                running_count += 1
-                # Vérification de l'état de santé (healthcheck) s'il existe
-                health = c.attrs.get("State", {}).get("Health", {}).get("Status")
-                if health == "healthy":
-                    badge = "✅ (healthy)"
-                elif health == "unhealthy":
-                    badge = "⚠️ (unhealthy)"
+                # Détection des badges avec émojis
+                if status == "running":
+                    if health == "healthy":
+                        badge = "✅ (healthy)"
+                    elif health == "unhealthy":
+                        badge = "⚠️ (unhealthy)"
+                    else:
+                        badge = "🟢 Up"
+                elif status == "exited":
+                    badge = "🔴 Stopped"
+                elif status == "paused":
+                    badge = "⏸️ Paused"
+                elif status == "restarting":
+                    badge = "🔄 Restarting"
                 else:
-                    badge = "🟢 Up"
-            elif status == "exited":
-                badge = "🔴 Stopped"
-            elif status == "paused":
-                badge = "⏸️ Paused"
-            elif status == "restarting":
-                badge = "🔄 Restarting"
-            else:
-                badge = f"⚪ {status.capitalize()}"
+                    badge = f"⚪ {status.capitalize()}"
 
-            lines.append(f"• `{name}` — {badge}")
+                lines.append(f"• `{name}` — {badge}")
 
-        summary = f"📦 **Statut Docker ({running_count}/{total_count} actifs)**\n\n"
-        message_text = summary + "\n".join(lines)
+            summary = f"📦 **Statut Docker ({running_count}/{total_count} actifs)**\n\n"
+            message_text = summary + "\n".join(lines)
 
-        await msg.edit_text(message_text, parse_mode="Markdown")
+            await msg.edit_text(message_text, parse_mode="Markdown")
 
+    except httpx.ConnectError:
+        await msg.edit_text("❌ **Erreur :** Impossible de se connecter à l'API du Pi. Vérifiez l'adresse `PI_API_URL`.")
     except Exception as e:
-        await msg.edit_text(f"❌ **Erreur d'accès à Docker :**\n`{str(e)}`", parse_mode="Markdown")
+        await msg.edit_text(f"❌ **Erreur lors de l'appel API :**\n`{str(e)}`", parse_mode="Markdown")
 
-# Enregistre la commande sous /check_docker ou /chack_containers
-handler = CommandHandler(["check_docker", "docker"], check_docker_callback)
+# Enregistre la commande pour /containers, /docker et /check_docker
+handler = CommandHandler(["containers", "docker", "check_docker"], containers_callback)

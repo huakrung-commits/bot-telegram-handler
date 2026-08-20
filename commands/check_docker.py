@@ -14,7 +14,7 @@ async def containers_callback(update: Update, context: ContextTypes.DEFAULT_TYPE
 
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get(f"{API_URL}/containers", headers=headers, timeout=5.0)
+            response = await client.get(f"{API_URL}/docker/containers", headers=headers, timeout=5.0)
 
             if response.status_code != 200:
                 await msg.edit_text(f"❌ **Erreur API ({response.status_code}) :**\n`{response.text}`", parse_mode="Markdown")

@@ -2,12 +2,14 @@ import os
 import httpx
 from telegram import Update
 from telegram.ext import CommandHandler, ContextTypes
+from utils.security import restricted
 
 description = "Vérification du réseau proxy-net"
 
 API_URL = os.getenv("PI_API_URL", "http://172.17.0.1:8000")
 API_KEY = os.getenv("PI_API_KEY", "")
 
+@restricted
 async def network_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     msg = await update.message.reply_text("🔍 **Vérification du réseau proxy-net...**", parse_mode="Markdown")
 

@@ -2,12 +2,14 @@ import os
 import httpx
 from telegram import Update
 from telegram.ext import CommandHandler, ContextTypes
+from utils.security import restricted
 
 description = "Affiche l'état des ressources système (CPU, RAM, Disque)"
 
 API_URL = os.getenv("PI_API_URL", "http://localhost:8000")
 API_KEY = os.getenv("PI_API_KEY", "")
 
+@restricted
 async def status_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     headers = {"X-API-Key": API_KEY}
 

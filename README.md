@@ -22,8 +22,10 @@ Docker & Docker Compose
 Un token de bot créé via @BotFather
 Configuration
 Cloner le dépôt :
+```text
 git clone https://github.com/huakrung-commits/bot-telegram-handler
 cd bot-telegram-command-handler
+```
 
 
 Créer le fichier d'environnement à partir du modèle :

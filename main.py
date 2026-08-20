@@ -32,6 +32,11 @@ def load_commands(application):
             module = importlib.import_module(full_module_name)
             if hasattr(module, "handler"):
                 application.add_handler(module.handler)
+                
+                # Extrait la description si disponible, sinon met une valeur par défaut
+                desc = getattr(module, "description", "Aucune description disponible")
+                commands_help[module_name] = desc
+                
                 logger.info("Commande chargée : %s", module_name)
             else:
                 logger.warning("Le module %s ne possède pas d'objet 'handler'.", module_name)

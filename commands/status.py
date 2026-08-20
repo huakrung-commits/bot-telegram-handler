@@ -3,6 +3,8 @@ import httpx
 from telegram import Update
 from telegram.ext import CommandHandler, ContextTypes
 
+description = "Affiche l'état des ressources système (CPU, RAM, Disque)"
+
 API_URL = os.getenv("PI_API_URL", "http://localhost:8000")
 API_KEY = os.getenv("PI_API_KEY", "")
 

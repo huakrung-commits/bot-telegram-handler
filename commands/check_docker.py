@@ -6,7 +6,8 @@ async def check_docker_callback(update: Update, context: ContextTypes.DEFAULT_TY
     msg = await update.message.reply_text("🔍 **Analyse des conteneurs Docker...**", parse_mode="Markdown")
 
     try:
-        client = docker.from_env()
+        docker_socket = os.getenv("DOCKER_HOST", "unix://var/run/docker.sock")
+        client = docker.DockerClient(base_url=docker_socket)
         containers = client.containers.list(all=True)
 
         if not containers:
@@ -55,4 +56,4 @@ async def check_docker_callback(update: Update, context: ContextTypes.DEFAULT_TY
         await msg.edit_text(f"❌ **Erreur d'accès à Docker :**\n`{str(e)}`", parse_mode="Markdown")
 
 # Enregistre la commande sous /check_docker ou /chack_containers
-handler = CommandHandler(["check_docker", "check_containers"], check_docker_callback)
+handler = CommandHandler(["check_docker", "docker"], check_docker_callback)

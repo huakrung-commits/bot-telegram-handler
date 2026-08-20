@@ -1,19 +1,29 @@
 import os
-from telegram import Update
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CommandHandler, ContextTypes
+from telegram import WebAppInfo
 from utils.security import restricted
 
-description = "Affiche le lien de la documentation technique de l'infrastructure"
+description = "Ouvre la Mini App de documentation technique"
 
-# Remplace par ton URL publique/VPN ou l'IP locale du Pi
-DOC_URL = os.getenv("DOC_URL", "http://192.168.1.38/dat.html")
+# URL publique/HTTPS gérée par ton Nginx Proxy Manager
+DOC_URL = os.getenv("DOC_URL", "https://html.headlesspi.krung.duckdns.org/dat.html")
 
 @restricted
 async def doc_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    message = (
-        "📚 **Documentation Technique de l'Infrastructure**\n\n"
-        f"🔗 Retrouve la documentation complète ici :\n{DOC_URL}"
+    keyboard = [
+        [
+            InlineKeyboardButton(
+                "📚 Ouvrir la Documentation", 
+                web_app=WebAppInfo(url=DOC_URL)
+            )
+        ]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
+    await update.message.reply_text(
+        "Clique ci-dessous pour ouvrir la documentation technique complète :",
+        reply_markup=reply_markup
     )
-    await update.message.reply_text(message, parse_mode="Markdown")
 
-handler = CommandHandler(["dat","architecture"], doc_callback)
+handler = CommandHandler(["dat"], doc_callback)

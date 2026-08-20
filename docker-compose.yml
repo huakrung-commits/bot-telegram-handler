@@ -7,3 +7,9 @@ services:
       - .env
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - proxy-net
+
+networks:
+  proxy-net:
+    external: true

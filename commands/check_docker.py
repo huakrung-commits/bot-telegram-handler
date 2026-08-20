@@ -2,6 +2,7 @@ import os
 import httpx
 from telegram import Update
 from telegram.ext import CommandHandler, ContextTypes
+from utils.security import restricted
 
 description = "Vérifie l'état des conteneurs"
 

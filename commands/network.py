@@ -3,6 +3,8 @@ import httpx
 from telegram import Update
 from telegram.ext import CommandHandler, ContextTypes
 
+description = "Vérification du réseau proxy-net"
+
 API_URL = os.getenv("PI_API_URL", "http://172.17.0.1:8000")
 API_KEY = os.getenv("PI_API_KEY", "")
 

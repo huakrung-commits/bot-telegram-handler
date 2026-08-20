@@ -23,7 +23,7 @@ Un token de bot créé via @BotFather
 Configuration
 Cloner le dépôt :
 ```text
-git clone https://github.com/huakrung-commits/bot-telegram-handler
+git clone https://github.com/huakrung-commits/bot-telegram-handler.git
 cd bot-telegram-command-handler
 ```
 

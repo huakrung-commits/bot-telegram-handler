@@ -23,6 +23,8 @@ logging.getLogger("telegram").setLevel(logging.WARNING)
 def load_commands(application):
     """Charge dynamiquement tous les handlers exportés dans le dossier commands/."""
     package = commands
+    commands_help = {}
+    
     for _, module_name, is_pkg in pkgutil.iter_modules(package.__path__):
         if is_pkg or module_name.startswith("_"):
             continue
@@ -35,13 +37,22 @@ def load_commands(application):
                 
                 # Extrait la description si disponible, sinon met une valeur par défaut
                 desc = getattr(module, "description", "Aucune description disponible")
-                commands_help[module_name] = desc
+
+                # Gestion des alias multiples dans un CommandHandler
+                handler_obj = module.handler
+                if hasattr(handler_obj, "commands"):
+                    for cmd in handler_obj.commands:
+                        commands_help[cmd] = desc
+                else:
+                    commands_help[module_name] = desc
                 
                 logger.info("Commande chargée : %s", module_name)
             else:
                 logger.warning("Le module %s ne possède pas d'objet 'handler'.", module_name)
         except Exception as e:
             logger.error("Échec du chargement du module %s : %s", module_name, e)
+    
+    application.bot_data["commands_help"] = commands_help
 
 def main() -> None:
     token = os.getenv("TELEGRAM_BOT_TOKEN")

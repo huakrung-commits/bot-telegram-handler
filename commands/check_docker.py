@@ -3,12 +3,13 @@ import httpx
 from telegram import Update
 from telegram.ext import CommandHandler, ContextTypes
 
-description = "Affiche l'état des conteneurs"
+description = "Vérifie l'état des conteneurs"
 
 # Récupération de l'URL et de la clé API depuis le .env du bot
 API_URL = os.getenv("PI_API_URL", "http://172.17.0.1:8000")
 API_KEY = os.getenv("PI_API_KEY", "")
 
+@restricted
 async def containers_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     msg = await update.message.reply_text("🔍 **Analyse des conteneurs via l'API...**", parse_mode="Markdown")
 

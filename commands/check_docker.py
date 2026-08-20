@@ -1,3 +1,4 @@
+import os
 import docker
 from telegram import Update
 from telegram.ext import CommandHandler, ContextTypes

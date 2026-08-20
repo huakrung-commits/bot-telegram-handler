@@ -21,7 +21,7 @@ Docker & Docker Compose
 Un token de bot créé via @BotFather
 Configuration
 Cloner le dépôt :
-git clone <URL_DU_DEPOT>
+git clone https://github.com/huakrung-commits/bot-telegram-handler
 cd bot-telegram-command-handler
 
 

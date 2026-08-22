@@ -47,4 +47,4 @@ async def network_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     except Exception as e:
         await msg.edit_text(f"❌ Erreur lors de l'appel API : `{e}`")
 
-handler = CommandHandler(["network", "proxynet"], network_callback)
+handler = CommandHandler(["network"], network_callback)

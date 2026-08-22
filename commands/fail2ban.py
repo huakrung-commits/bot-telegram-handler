@@ -53,4 +53,4 @@ async def fail2ban_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         await msg.edit_text(f"❌ **Erreur :** `{str(e)}`", parse_mode="Markdown")
 
 # Accepte /fail2ban et /security
-handler = CommandHandler(["fail2ban", "security"], fail2ban_callback)
+handler = CommandHandler(["fail2ban"], fail2ban_callback)

@@ -13,4 +13,4 @@ async def start_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         
     await update.message.reply_text("\n".join(lines), parse_mode="HTML")
 
-handler = CommandHandler(["start","help"], start_callback)
+handler = CommandHandler(["start"], start_callback)
